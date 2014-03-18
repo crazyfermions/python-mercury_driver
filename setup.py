@@ -8,7 +8,7 @@ setup(
     long_description=open('README.rst').read(),
     author='Florian Forster',
     author_email='f.forster@physik.uni-muenchen.de',
-    license='MIT',
+    license='LICENSE.txt',
     packages=['mercuryitc'],
     install_requires=[
         "pyserial >= 2.6",
