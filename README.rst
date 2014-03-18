@@ -4,8 +4,8 @@ MercuryITC driver
 About
 -----
 This is a purely python based driver to remotely control the 
-`Oxford<http://www.oxford-instruments.com/>`_ Mercury iTC cryogenic 
-environment controller.
+Oxford Mercury iTC cryogenic 
+environment controller <http://www.oxford-instruments.com/>.
 
 Only the USB connection is supported. Note that this connection is technically
 just a serial connection, so all the low level communication happens via the 
@@ -24,9 +24,9 @@ just create an instance of this class with the device's address, e. g.::
     >> address = '/dev/ttyACM0'
     >> m = MercuryITC(address)
 
-All the instrument attributes can be accessed through instance attributes, e.g.
+All the instrument attributes can be accessed through instance attributes, e.g.::
 
->> print m.serl
+    >> print m.serl
 
 All MercuryITC modules are automatically recognized and added to the modules
 attribute::
