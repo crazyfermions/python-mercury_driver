@@ -78,7 +78,7 @@ def convert_scaled_values(s, convert=float):
 
 class CachedPropertyContainer(object):
     def __init__(self):
-        self._clear_cache()
+        self.clear_cache()
 
     def _read_property(self, name, convert, ignored_delimiters=0):
         '''Read a property from the device.
