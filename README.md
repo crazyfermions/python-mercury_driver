@@ -17,7 +17,7 @@ The core of this module is the class MercuryITC. To initialize a driver object,
 just create an instance of this class with the device's address, e. g.::
 
 ```python
->>> from mercuryitc import MercuryITC
+>>> from mercury_driver import MercuryITC
 >>> address = '172.28.197.132'
 >>> m = MercuryITC(address)
 ```
