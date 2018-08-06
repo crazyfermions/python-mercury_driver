@@ -63,7 +63,5 @@ clear_cache method::
 ## To fix
 
 - MercuryITC: USER and PASS property not implemented
-- MercuryITC_HTR: POWR not implemented correctly
-- Add support for PID loop module
 - Add support for level meter module
 
