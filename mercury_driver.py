@@ -767,10 +767,9 @@ class MercuryITC(MercuryCommon):
     DIMAS = ['ON', 'OFF']
     _lock = threading.RLock()
 
-    def __init__(self, IP, port='7020'):
+    def __init__(self, address):
         super(MercuryITC, self).__init__()
-        self.IP = IP
-        self.port = port
+        self.address = address
         self.rm = visa.ResourceManager()
         self.connect()
         self._init_modules()
@@ -780,8 +779,7 @@ class MercuryITC(MercuryCommon):
         return '%s(%s)' % (type(self).__name__, self.IP)
 
     def connect(self):
-        self.connection = self.rm.open_resource('TCPIP0::%s::%s::SOCKET'
-                                                % (self.IP, self.port))
+        self.connection = self.rm.open_resource(self.address)
         self.connection.read_termination = '\n'
 
     def disconnect(self):
