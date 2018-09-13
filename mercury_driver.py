@@ -15,7 +15,7 @@ all).
 The core of this module is the class MercuryITC. To initialize a driver object,
 just create an instance of this class with the device's address, e. g.
 
->> m = MercuryITC('/dev/ttyACM0')
+>> m = MercuryITC('visa_address')
 
 All the instrument attributes can be accessed through instance attributes, e.g.
 
@@ -776,7 +776,7 @@ class MercuryITC(MercuryCommon):
         self.address = 'SYS'
 
     def __repr__(self):
-        return '%s(%s)' % (type(self).__name__, self.IP)
+        return '%s(%s)' % (type(self).__name__, self.address)
 
     def connect(self):
         self.connection = self.rm.open_resource(self.address)
