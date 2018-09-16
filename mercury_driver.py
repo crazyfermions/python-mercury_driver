@@ -770,7 +770,7 @@ class MercuryITC(MercuryCommon):
     def __init__(self, address):
         super(MercuryITC, self).__init__()
         self.address = address
-        self.rm = visa.ResourceManager()
+        self.rm = visa.ResourceManager('@py')
         self.connect()
         self._init_modules()
         self.address = 'SYS'
