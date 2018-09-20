@@ -6,7 +6,7 @@ This is a purely python based driver to remotely control the
 Oxford Mercury iTC cryogenic 
 environment controller <http://www.oxford-instruments.com/>.
 
-This driver is requires pyvisa but can be easily modified to use another interface.
+This driver is requires pyvisa-py but can be easily modified to use another interface.
 
 This driver supports the aux, heater and temperature, and gasflow modules. Look
 at the class docstrings to see all the implemented commands (which is almost all).
@@ -14,12 +14,11 @@ at the class docstrings to see all the implemented commands (which is almost all
 ## How to use
 
 The core of this module is the class MercuryITC. To initialize a driver object,
-just create an instance of this class with the device's address, e. g.::
+just create an instance of this class with the device's visa address, e. g.:
 
 ```python
 >>> from mercury_driver import MercuryITC
->>> address = '172.28.197.132'
->>> m = MercuryITC(address)
+>>> m = MercuryITC('TCPIP0::172.20.91.43::7020::SOCKET')
 ```
 
 All the instrument attributes can be accessed through instance attributes, e.g.::
