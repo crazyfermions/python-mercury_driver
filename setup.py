@@ -12,7 +12,7 @@ setup(name="MercuryiTC",
       install_requires=[
           'PyVISA',
           'pyvisa-py',
-          'visa',
+          'threading',
           'setuptools',
       ],
       zip_safe=False,
