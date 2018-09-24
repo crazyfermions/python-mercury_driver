@@ -1,1 +1,1 @@
-from mercury_driver import MercuryITC
+from MercuryiTC import MercuryITC
