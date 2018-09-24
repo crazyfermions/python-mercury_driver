@@ -69,6 +69,9 @@ Modified by Sam Schott, 08/08/2016
 
 import visa
 import threading
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def convert_scaled_values(s, convert=float):
@@ -767,20 +770,30 @@ class MercuryITC(MercuryCommon):
     DIMAS = ['ON', 'OFF']
     _lock = threading.RLock()
 
+    connected = True
+    connection = False
+
     def __init__(self, address):
         super(MercuryITC, self).__init__()
         self.address = address
         self.rm = visa.ResourceManager('@py')
         self.connect()
-        self._init_modules()
-        self.address = 'SYS'
 
     def __repr__(self):
         return '%s(%s)' % (type(self).__name__, self.address)
 
     def connect(self):
-        self.connection = self.rm.open_resource(self.address)
-        self.connection.read_termination = '\n'
+        try:
+            self.connection = self.rm.open_resource(self.address)
+            self.connection.read_termination = '\n'
+            MercuryITC.connected = True
+        except:
+            logger.info('Could not connect to Mercury.')
+            self.connection = None
+            MercuryITC.connected = False
+        else:
+            self._init_modules()
+            self.address = 'SYS'
 
     def disconnect(self):
         try:
