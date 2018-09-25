@@ -773,9 +773,9 @@ class MercuryITC(MercuryCommon):
     connected = True
     connection = False
 
-    def __init__(self, address):
+    def __init__(self, visa_address):
         super(MercuryITC, self).__init__()
-        self.address = address
+        self.visa_address = visa_address
         self.rm = visa.ResourceManager('@py')
         self.connect()
 
@@ -784,7 +784,7 @@ class MercuryITC(MercuryCommon):
 
     def connect(self):
         try:
-            self.connection = self.rm.open_resource(self.address)
+            self.connection = self.rm.open_resource(self.visa_address)
             self.connection.read_termination = '\n'
             MercuryITC.connected = True
         except:
@@ -796,6 +796,7 @@ class MercuryITC(MercuryCommon):
             self.address = 'SYS'
 
     def disconnect(self):
+        MercuryITC.connected = False
         try:
             self.connection.close()
             del self.connection
