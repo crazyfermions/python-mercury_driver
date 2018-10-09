@@ -78,7 +78,8 @@ def convert_scaled_values(s, convert=float):
     """Split the value from any other part of a string, i. e. the units, and
     return the a tuple of the value and the extracted unit. Also converts the
     value by the given function."""
-    f = filter(lambda x: x in '0123456789.', s)
+    f = list(filter(lambda x: x in '0123456789.', s))
+    f = ''.join(f)
     try:
         unit = s.split(f)[-1]
     except ValueError:
