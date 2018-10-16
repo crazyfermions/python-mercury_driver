@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-setup(name="MercuryiTC",
+setup(name="mercuryitc",
       version="0.1.0",
       description="Full Python driver for the Oxford Mercury iTC cryogenic environment controller.",
       url="https://github.com/OE-FET/MercuryiTC.git",
