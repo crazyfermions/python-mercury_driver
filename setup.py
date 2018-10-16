@@ -15,4 +15,4 @@ setup(name="mercuryitc",
           'setuptools',
       ],
       zip_safe=False,
-)
+      )
