@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(name="mercuryitc",
       version="0.1.0",
       description="Full Python driver for the Oxford Mercury iTC cryogenic environment controller.",
-      url="https://github.com/OE-FET/MercuryiTC.git",
+      url="https://github.com/OE-FET/mercuryitc.git",
       author="Sam Schott",
       author_email="ss2151@cam.ac.uk",
       licence='MIT',
