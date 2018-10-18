@@ -17,7 +17,7 @@ The core of this module is the class MercuryITC. To initialize a driver object,
 just create an instance of this class with the device's visa address, e. g.:
 
 ```python
->>> from mercury_driver import MercuryITC
+>>> from mercuryitc import MercuryITC
 >>> m = MercuryITC('TCPIP0::172.20.91.43::7020::SOCKET')
 ```
 
@@ -58,6 +58,14 @@ clear_cache method::
 ```python
 >>> m.clear_cache()
 ```
+
+
+## Installation
+Download or clone the repository. Install the package by running 
+```console
+$ pip install /path/to/folder
+```
+where "/path/to/folder" is the path to the folder containing setup.py. 
 
 ## To fix
 
