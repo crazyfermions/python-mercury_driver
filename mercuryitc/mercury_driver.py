@@ -788,17 +788,17 @@ class MercuryITC(MercuryCommon):
         try:
             self.connection = self.rm.open_resource(self.visa_address)
             self.connection.read_termination = '\n'
-            MercuryITC.connected = True
+            self.connected = True
         except:
             logger.info('Could not connect to Mercury.')
             self.connection = None
-            MercuryITC.connected = False
+            self.connected = False
         else:
             self._init_modules()
             self.address = 'SYS'
 
     def disconnect(self):
-        MercuryITC.connected = False
+        self.connected = False
         try:
             self.connection.close()
             del self.connection
