@@ -774,10 +774,11 @@ class MercuryITC(MercuryCommon):
     connected = True
     connection = False
 
-    def __init__(self, visa_address):
+    def __init__(self, visa_address, visa_library='@py'):
         super(MercuryITC, self).__init__()
         self.visa_address = visa_address
-        self.rm = visa.ResourceManager('@py')
+        self.visa_library = visa_library
+        self.rm = visa.ResourceManager(self.visa_library)
         self.connect()
 
     def __repr__(self):
