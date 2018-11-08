@@ -194,7 +194,7 @@ class MercuryModule(MercuryCommon):
         self._cache = {}
 
     def __repr__(self):
-        return '%s(%s, %s)' % (type(self).__name__, self.nick, self.parent)
+        return '<%s(%s, %s)>' % (type(self).__name__, self.nick, self.parent)
 
     def read(self):
         return self.parent.read()
@@ -782,7 +782,7 @@ class MercuryITC(MercuryCommon):
         self.connect()
 
     def __repr__(self):
-        return '%s(%s)' % (type(self).__name__, self.address)
+        return '<%s(%s)>' % (type(self).__name__, self.visa_address)
 
     def connect(self):
         try:
