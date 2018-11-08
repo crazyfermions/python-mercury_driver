@@ -771,35 +771,18 @@ class MercuryITC(MercuryCommon):
     DIMAS = ['ON', 'OFF']
     _lock = threading.RLock()
 
-    # dictionary with all instances
-    _instances = {}
+    connected = True
+    connection = False
 
-    def __new__(cls, visa_address, *args, **kwargs):
-        """
-        Create new instance for a new visa_address, otherwise return existing instance.
-        """
-        if visa_address in cls._instances.keys():
-            logger.debug('Returning existing instance with address %s.' % visa_address)
-            return cls._instances[visa_address]
-        else:
-            instance = object.__new__(cls)
-            cls._instances[visa_address] = instance
-            instance._init(visa_address, *args, **kwargs)
-            logger.debug('Creating new instance with address %s.' % visa_address)
-            return instance
-
-    def _init(self, visa_address, visa_library='@py'):
+    def __init__(self, visa_address, visa_library='@py'):
         super(MercuryITC, self).__init__()
         self.visa_address = visa_address
         self.visa_library = visa_library
-
-        self.connection = None
-        self.connected = False
         self.rm = visa.ResourceManager(self.visa_library)
         self.connect()
 
     def __repr__(self):
-        return '%s(%s)' % (type(self).__name__, self.visa_address)
+        return '%s(%s)' % (type(self).__name__, self.address)
 
     def connect(self):
         try:
