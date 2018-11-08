@@ -978,3 +978,21 @@ class MercuryITC(MercuryCommon):
         alarm_list = string[:-1].split(';')
         alarms_dict = dict(item.split('\t') for item in alarm_list)
         return alarms_dict
+
+
+class MercuryITCFactory(object):
+
+    _instances = {}
+
+    def __new__(cls, *args, **kwargs):
+        """
+        Create new instance for a new visa_address, otherwise return existing instance.
+        """
+        if args[0] in cls._instances.keys():
+            logger.debug('Returning existing instance with address %s.' % args[0])
+            return cls._instances[args[0]]
+        else:
+            instance = MercuryITC(*args, **kwargs)
+            cls._instances[args[0]] = instance
+            logger.debug('Creating new instance with address %s.' % args[0])
+            return instance
