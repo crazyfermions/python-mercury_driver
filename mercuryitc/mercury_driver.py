@@ -988,7 +988,7 @@ class MercuryITCFactory(object):
         """
         Create new instance for a new visa_address, otherwise return existing instance.
         """
-        if args[0] in cls._instances.keys():
+        if args[0] in cls._instances:
             logger.debug('Returning existing instance with address %s.' % args[0])
             return cls._instances[args[0]]
         else:
