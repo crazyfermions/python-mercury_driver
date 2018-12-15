@@ -797,11 +797,11 @@ class MercuryITC(MercuryCommon):
             self.connection = None
             self.connected = False
         except AttributeError:
-            logger.info('Invalid VISA address. Could not connect to Mercury.')
+            logger.info('Invalid VISA address %s.' % self.visa_address)
             self.connection = None
             self.connected = False
         except Exception:
-            logger.info('Could not connect to Mercury.')
+            logger.info('Could not connect to Mercury at %s.' % self.visa_address)
             self.connection = None
             self.connected = False
 
