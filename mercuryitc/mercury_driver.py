@@ -789,13 +789,21 @@ class MercuryITC(MercuryCommon):
             self.connection = self.rm.open_resource(self.visa_address)
             self.connection.read_termination = '\n'
             self.connected = True
-        except:
+            self._init_modules()
+            self.address = 'SYS'
+        except ConnectionResetError:
+            logger.info('Connection reset by the instrument. Please check ' +
+                        'that no other programm is connected.')
+            self.connection = None
+            self.connected = False
+        except AttributeError:
+            logger.info('Invalid VISA address. Could not connect to Mercury.')
+            self.connection = None
+            self.connected = False
+        except Exception:
             logger.info('Could not connect to Mercury.')
             self.connection = None
             self.connected = False
-        else:
-            self._init_modules()
-            self.address = 'SYS'
 
     def disconnect(self):
         self.connected = False
