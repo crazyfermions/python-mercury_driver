@@ -66,11 +66,12 @@ MercuryITC_HTR: POWR not implemented correctly
 Modified by Sam Schott, 08/08/2016
 
 """
-
+import sys
 import visa
 import threading
 import logging
 
+PY2 = sys.version[0] == '2'
 logger = logging.getLogger(__name__)
 
 
@@ -785,14 +786,17 @@ class MercuryITC(MercuryCommon):
         return '<%s(%s)>' % (type(self).__name__, self.visa_address)
 
     def connect(self):
+
+        connection_error = OSError if PY2 else ConnectionError
+
         try:
             self.connection = self.rm.open_resource(self.visa_address)
             self.connection.read_termination = '\n'
             self.connected = True
             self._init_modules()
             self.address = 'SYS'
-        except ConnectionResetError:
-            logger.info('Connection reset by the instrument. Please check ' +
+        except connection_error:
+            logger.info('Connection to the instrument failed. Please check ' +
                         'that no other programm is connected.')
             self.connection = None
             self.connected = False
