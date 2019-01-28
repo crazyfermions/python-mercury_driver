@@ -626,25 +626,6 @@ class MercuryITC_LOOP(MercuryModule):
     def ramp_enable(self):
         self._delete_cached_property('RENA')
 
-    @property
-    def flow_auto(self):
-        """
-        Enables or disables automatic gas flow regulation - Read/set -
-        String value
-        """
-        return self._read_cached_property('FAUT', str)
-
-    @flow_auto.setter
-    def flow_auto(self, val):
-        if val in ('ON', 'OFF'):
-            self._write_cached_property('FAUT', val, str)
-        else:
-            raise ValueError('Only values "ON" or "OFF" allowed')
-
-    @flow_auto.deleter
-    def flow_auto(self):
-        self._delete_cached_property('FAUT')
-
 
 class MercuryITC_AUX(MercuryModule):
     """Class for an MercuryITC AUX (gas flow) module."""
