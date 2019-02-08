@@ -545,7 +545,7 @@ class MercuryITC_LOOP(MercuryModule):
 
     @flow_auto.setter
     def flow_auto(self, val):
-        if val == 'ON' or val == 'OFF':
+        if val in ('ON', 'OFF'):
             self._write_cached_property('FAUT', val, str)
         else:
             raise ValueError('Only values "ON" or "OFF" allowed')
@@ -596,7 +596,7 @@ class MercuryITC_LOOP(MercuryModule):
         """Temperature ramp speed in K/min - Read/set - String value"""
         resp = self._read_cached_property('RSET', str)
         if resp == 'infK/m':
-            return 'inf'
+            return float('inf')
         else:
             tmp = convert_scaled_values(resp)
             return tmp[0]
