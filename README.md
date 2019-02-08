@@ -49,7 +49,7 @@ and set as tuples, e.g.::
 Note that all attributes which are not *signals* are cached and retrieved only
 once from the device. They are stored and read from memory afterwards. To 
 remove these variables from memory for whatever reason, simply call the 
-destructor::
+destructor:
 ```python
 >>> del m.serl
 ```
