@@ -97,7 +97,7 @@ class CachedPropertyContainer(object):
         name (str): property's name
         convert (factory func): function to convert the str received from the
             instrument; usually float, int or str
-        ignored_delimiters (int): Amount of : which belongs to the property's
+        ignored_delimiters (int): Amount of ':' which belongs to the property's
             value. Only makes sense for str values.
         """
         q = 'READ:%s:%s' % (self.address, name)
@@ -152,7 +152,7 @@ class CachedPropertyContainer(object):
     def clear_cache(self):
         self._cache = {}
 
-    def query(self):
+    def query(self, q):
         pass
 
 
@@ -240,10 +240,10 @@ class MercuryITC_HTR(MercuryModule):
 
     @res.setter
     def res(self, val):
-        if val > 100 or val < 20:
-            raise ValueError('Only values between 20.0 and 100.0 allowed')
-        else:
+        if 20 <= val <= 100:
             self._write_cached_property('RES', val, float)
+        else:
+            raise ValueError('Only values between 20.0 and 100.0 allowed')
 
     @res.deleter
     def res(self):
@@ -256,10 +256,10 @@ class MercuryITC_HTR(MercuryModule):
 
     @vlim.setter
     def vlim(self, val):
-        if val > 40 or val < 0:
-            raise ValueError('Only values between 0.0 and 40.0 allowed')
-        else:
+        if 0 <= val <= 40:
             self._write_cached_property('VLIM', val, float)
+        else:
+            raise ValueError('Only values between 0.0 and 40.0 allowed')
 
     @vlim.deleter
     def vlim(self):
@@ -273,31 +273,37 @@ class MercuryITC_HTR(MercuryModule):
 
     @volt.setter
     def volt(self, val):
-        if val[0] > self.vlim or val[0] < 0:
-            raise ValueError('Only values from 0 to %s allowed.' % self.vlim)
-        else:
+        if 0 <= val[0] <= self.vlim:
             val = [str(v) for v in val]
             self._write_property('SIG:VOLT', ''.join(val), str)
+        else:
+            raise ValueError('Only values from 0 to %s allowed.' % self.vlim)
 
     @property
     def curr(self):
         """Most recent current reading - Read only - Float value"""
         return convert_scaled_values(self._read_property('SIG:CURR', str))
 
-    # TODO: Check this in action and provide a proper fix
-    # In a dry environment, powr is 'N/A'.
     @property
     def powr(self):
         """Most recent power reading/ power to set - Read/set - Float value
         [0.0 to Max Power]"""
-        return self._read_property('SIG:PWR', str)
+        val = self._read_property('SIG:PWR', str)
+        if val == 'N/A':
+            return val
+        else:
+            return float(val)
 
     @powr.setter
     def powr(self, val):
-        if val > self.pmax or val < 0:
-            raise ValueError('Only values from 0 to %s allowed' % self.pmax)
+        old_val = self._read_property('SIG:PWR', str)
+        if old_val == 'N/A':
+            raise ValueError('Cannot set heater power in a dry environment')
+
+        if 0 <= val <= self.pmax:
+            self._write_property('SIG:PWR', val, float)
         else:
-            self._write_property('SIG:PWR', val, str)
+            raise ValueError('Only values from 0 to %s allowed' % self.pmax)
 
 
 class MercuryITC_TEMP(MercuryModule):
@@ -314,10 +320,10 @@ class MercuryITC_TEMP(MercuryModule):
 
     @type.setter
     def type(self, val):
-        if val not in self.TYPES:
-            raise ValueError('Only values from %s allowed' % self.TYPES)
-        else:
+        if val in self.TYPES:
             self._write_cached_property('TYPE', val, str)
+        else:
+            raise ValueError('Only values from %s allowed' % self.TYPES)
 
     @type.deleter
     def type(self):
@@ -341,8 +347,8 @@ class MercuryITC_TEMP(MercuryModule):
 
     @property
     def exct_mag(self):
-        """Excitation magnitude - Read/set - Float value followed by a scale"""
-        return self._read_cached_property('EXCT:MAG', str)
+        """Excitation magnitude - Read/set - Float value"""
+        return self._read_cached_property('EXCT:MAG', float)
 
     @exct_mag.setter
     def exct_mag(self, val):
@@ -350,7 +356,7 @@ class MercuryITC_TEMP(MercuryModule):
         if False:
             raise ValueError()
         else:
-            self._write_cached_property('EXCT:MAG', val, str)
+            self._write_cached_property('EXCT:MAG', val, float)
 
     @exct_mag.deleter
     def exct_mag(self):
@@ -380,10 +386,10 @@ class MercuryITC_TEMP(MercuryModule):
 
     @cal_int.setter
     def cal_int(self, val):
-        if val not in self.CAL_INT:
-            raise ValueError('Only values from %s allowed' % self.CAL_INT)
-        else:
+        if val in self.CAL_INT:
             self._write_cached_property('CAL:INT', val, str)
+        else:
+            raise ValueError('Only values from %s allowed' % self.CAL_INT)
 
     @cal_int.deleter
     def cal_int(self):
@@ -396,10 +402,10 @@ class MercuryITC_TEMP(MercuryModule):
 
     @cal_scal.setter
     def cal_scal(self, val):
-        if val > 1.5 or val < 0.5:
-            raise ValueError('Only values between 0.5 and 1.5 allowed')
-        else:
+        if 0.5 <= val <= 1.5:
             self._write_cached_property('CAL:SCAL', val, float)
+        else:
+            raise ValueError('Only values between 0.5 and 1.5 allowed')
 
     @cal_scal.deleter
     def cal_scal(self):
@@ -412,10 +418,10 @@ class MercuryITC_TEMP(MercuryModule):
 
     @cal_offs.setter
     def cal_offs(self, val):
-        if val > 100 or val < -100:
-            raise ValueError('Only values between -100.0 and 100.0 allowed')
-        else:
+        if -100 <= val <= 100:
             self._write_cached_property('CAL:OFFS', val, float)
+        else:
+            raise ValueError('Only values between -100.0 and 100.0 allowed')
 
     @cal_offs.deleter
     def cal_offs(self):
@@ -424,7 +430,7 @@ class MercuryITC_TEMP(MercuryModule):
     @property
     def cal_hotl(self):
         """Hot limit - Read only - Float value"""
-        return self._read_cached_property('CAL:HOTL', str)
+        return convert_scaled_values(self._read_cached_property('CAL:HOTL', str))
 
     @cal_hotl.deleter
     def cal_hotl(self):
@@ -433,7 +439,7 @@ class MercuryITC_TEMP(MercuryModule):
     @property
     def cal_coldl(self):
         """Cold limit - Read only - Float value"""
-        return self._read_cached_property('CAL:COLDL', str)
+        return convert_scaled_values(self._read_cached_property('CAL:COLDL', str))
 
     @cal_coldl.deleter
     def cal_coldl(self):
@@ -556,44 +562,45 @@ class MercuryITC_LOOP(MercuryModule):
 
     @property
     def t_setpoint(self):
-        """Temperature setpoint for PID loop - Read/set - Float value"""
+        """Temperature setpoint for PID loop - Read/set - Float value [0 to HOTL]"""
         resp = convert_scaled_values(self._read_property('TSET', str))
         return resp[0]
 
     @t_setpoint.setter
     def t_setpoint(self, val):
-        if val > 310 or val < 3:
-            raise ValueError('Only values between 3K and 310K allowed')
-        else:
+        hotl = convert_scaled_values(self._read_cached_property('CAL:HOTL', str))
+        if 0 <= val <= hotl[0]:
             self._write_property('TSET', val, float)
+        else:
+            raise ValueError('Only values between 0K and %sK allowed' % hotl[0])
 
     @property
     def flow(self):
-        """Gas flow in percent - Read/set - Float value"""
+        """Gas flow in percent - Read/set - Float value [0 to 100]"""
         return self._read_property('FSET', float)
 
     @flow.setter
     def flow(self, val):
-        if val > 100 or val < 0:
-            raise ValueError('Only values between 0 and 100 allowed')
-        else:
+        if 0 <= val <= 100:
             self._write_property('FSET', val, float)
+        else:
+            raise ValueError('Only values between 0 and 100 allowed')
 
     @property
     def heater(self):
-        """Heater power in percent of total - Read/set - Float value"""
+        """Heater power in percent of total - Read/set - Float value [0 to 100]"""
         return self._read_property('HSET', float)
 
     @heater.setter
     def heater(self, val):
-        if val > 100 or val < 0:
-            raise ValueError('Only values between 0 and 100 allowed')
-        else:
+        if 0 <= val <= 100:
             self._write_property('HSET', val, float)
+        else:
+            raise ValueError('Only values between 0 and 100 allowed')
 
     @property
     def ramp(self):
-        """Temperature ramp speed in K/min - Read/set - String value"""
+        """Temperature ramp speed in K/min - Read/set - Float value"""
         resp = self._read_cached_property('RSET', str)
         if resp == 'infK/m':
             return float('inf')
@@ -617,8 +624,7 @@ class MercuryITC_LOOP(MercuryModule):
     @ramp_enable.setter
     def ramp_enable(self, val):
         if val in ('ON', 'OFF'):
-            val = [str(v) for v in val]
-            self._write_cached_property('RENA', ''.join(val), str)
+            self._write_cached_property('RENA', val, str)
         else:
             raise ValueError('Only values "ON" or "OFF" allowed')
 
@@ -631,15 +637,15 @@ class MercuryITC_AUX(MercuryModule):
     """Class for an MercuryITC AUX (gas flow) module."""
     @property
     def gmin(self):
-        """Minimum gas flow setting - Read/set - float value > 20"""
+        """Minimum gas flow setting - Read/set - float value > 1"""
         return self._read_cached_property('GMIN', float)
 
     @gmin.setter
     def gmin(self, val):
-        if val < 1:
-            raise ValueError('Only values larger than 1% allowed')
-        else:
+        if val > 1:
             self._write_cached_property('GMIN', val, float)
+        else:
+            raise ValueError('Only values larger than 1% allowed')
 
     @gmin.deleter
     def gmin(self):
@@ -647,15 +653,15 @@ class MercuryITC_AUX(MercuryModule):
 
     @property
     def gfsf(self):
-        """Gas flow scaling factor - Read/set - float value (0.0 to 99.0)"""
+        """Gas flow scaling factor - Read/set - float value [0.0 to 99.0]"""
         return self._read_cached_property('GFSF', float)
 
     @gfsf.setter
     def gfsf(self, val):
-        if val > 99 or val < 0:
-            raise ValueError('Only values between 0.0 and 99.0 allowed')
-        else:
+        if 0 <= val <= 99:
             self._write_cached_property('GFSF', val, float)
+        else:
+            raise ValueError('Only values between 0.0 and 99.0 allowed')
 
     @gfsf.deleter
     def gfsf(self):
@@ -663,16 +669,15 @@ class MercuryITC_AUX(MercuryModule):
 
     @property
     def tes(self):
-        """Temperature error sensitivity - Read/set -
-        float value (0.0 to 20.0)"""
+        """Temperature error sensitivity - Read/set - float value [0.0 to 20.0]"""
         return self._read_cached_property('TES', float)
 
     @tes.setter
     def tes(self, val):
-        if val > 20 or val < 0:
-            raise ValueError('Only values between 0.0 and 20.0 allowed')
-        else:
+        if 0 <= val <= 20:
             self._write_cached_property('TES', val, float)
+        else:
+            raise ValueError('Only values between 0.0 and 20.0 allowed')
 
     @tes.deleter
     def tes(self):
@@ -681,15 +686,15 @@ class MercuryITC_AUX(MercuryModule):
     @property
     def tves(self):
         """Temperature voltage error sensitivity - Read/set -
-        float value (0.0 to 20.0)"""
+        float value [0.0 to 20.0]"""
         return self._read_cached_property('TVES', float)
 
     @tves.setter
     def tves(self, val):
-        if val > 20 or val < 0:
-            raise ValueError('Only values between 0.0 and 20.0 allowed')
-        else:
+        if 0 <= val <= 20:
             self._write_cached_property('TVES', val, float)
+        else:
+            raise ValueError('Only values between 0.0 and 20.0 allowed')
 
     @tves.deleter
     def tves(self):
@@ -697,15 +702,15 @@ class MercuryITC_AUX(MercuryModule):
 
     @property
     def gear(self):
-        """Valve gearing - Read/set - unsigned integer (0 to 7)"""
+        """Valve gearing - Read/set - unsigned integer [0 to 7]"""
         return self._read_cached_property('GEAR', int)
 
     @gear.setter
     def gear(self, val):
-        if val > 7 or val < 0:
-            raise ValueError('Only values between 0 and 7 allowed')
-        else:
+        if 0 <= val <= 7:
             self._write_cached_property('GEAR', val, int)
+        else:
+            raise ValueError('Only values between 0 and 7 allowed')
 
     @gear.deleter
     def gear(self):
@@ -713,15 +718,15 @@ class MercuryITC_AUX(MercuryModule):
 
     @property
     def spd(self):
-        """Stepper speed - Read/set - unsigned integer (0=slow, 1=fast)"""
+        """Stepper speed - Read/set - unsigned integer (0, 1, 2)"""
         return self._read_cached_property('SPD', int)
 
     @spd.setter
     def spd(self, val):
-        if val not in (0, 1):
-            raise ValueError('Only 0 (slow) and 1 (fast) allowed')
-        else:
+        if val in (0, 1, 2):
             self._write_cached_property('SPD', val, int)
+        else:
+            raise ValueError('Only values in (0, 1, 2) allowed')
 
     @spd.deleter
     def spd(self):
@@ -730,12 +735,12 @@ class MercuryITC_AUX(MercuryModule):
     @property
     def step(self):
         """Present position of the stepper motor - Read only -
-        unsigned integer (0.0 to Max Steps)"""
+        unsigned integer [0.0 to Max Steps]"""
         return convert_scaled_values(self._read_property('SIG:STEP', str))
 
     @property
     def perc(self):
-        """Percentage open - Read only - float value (0.0 to 100.0)"""
+        """Percentage open - Read only - float value [0.0 to 100.0]"""
         return convert_scaled_values(self._read_property('SIG:PERC', str))
 
     @property
@@ -756,6 +761,8 @@ class MercuryITC(MercuryCommon):
     connected = True
     connection = False
 
+    address = 'SYS'
+
     def __init__(self, visa_address, visa_library='@py'):
         super(MercuryITC, self).__init__()
         self.visa_address = visa_address
@@ -775,7 +782,6 @@ class MercuryITC(MercuryCommon):
             self.connection.read_termination = '\n'
             self.connected = True
             self._init_modules()
-            self.address = 'SYS'
         except connection_error:
             logger.info('Connection to the instrument failed. Please check ' +
                         'that no other programm is connected.')
@@ -841,8 +847,9 @@ class MercuryITC(MercuryCommon):
         if val:
             q = 'SET:SYS:RST'
             resp = self.query(q).split(':')
-        if resp[-1] != 'VALID':
-            raise ValueError(q)
+
+            if resp[-1] != 'VALID':
+                raise ValueError(q)
 
     @property
     def flsh(self):
