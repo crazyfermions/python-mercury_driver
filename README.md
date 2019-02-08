@@ -18,7 +18,7 @@ just create an instance of this class with the device's visa address, e. g.:
 
 ```python
 >>> from mercuryitc import MercuryITC
->>> m = MercuryITC('TCPIP0::172.20.91.43::7020::SOCKET')
+>>> m = MercuryITC('TCPIP0:172.20.91.43:7020:SOCKET')
 ```
 
 All the instrument attributes can be accessed through instance attributes, e.g.:
@@ -26,12 +26,12 @@ All the instrument attributes can be accessed through instance attributes, e.g.:
 >>> print(m.serl)
 ```
 All MercuryITC modules are automatically recognized and added to the modules
-attribute::
+attribute:
 ```python
 >>> print(m.modules)
 ```
 Values can be read from and written to the instrument in the same way as for
-main models::
+main models:
 ```python
 >>> htr = m.modules[0]
 >>> print(htr.nick)
@@ -40,7 +40,7 @@ main models::
 ```
 There exists a special kind of attributes called *signals* in the MercuryITC
 manual. These contain a numeric value as well as a unit. Signals are read
-and set as tuples, e.g.::
+and set as tuples, e.g.:
 ```python
 >>> print(htr.volt)
 >>> htr.volt = (2.5, 'V')
@@ -54,7 +54,7 @@ destructor:
 >>> del m.serl
 ```
 It's also possible to empty the entire cache of an object by calling the
-clear_cache method::
+clear_cache method:
 ```python
 >>> m.clear_cache()
 ```
