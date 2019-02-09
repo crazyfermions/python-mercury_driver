@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Mar  7 11:48:07 2014
-
-@author: florian
-
 A driver to read and set the Oxford MercuryITC with its modules. Only the USB
 connection is supported. Note that this connection is technically just a
 serial connection, so the appropriate interface is the serial interface.
@@ -60,11 +56,6 @@ To fix:
 
 MercuryITC: USER and PASS property not implemented
 MercuryITC_HTR: POWR not implemented correctly
-
-----
-
-Modified by Sam Schott, 08/08/2016
-
 """
 import sys
 import visa

@@ -1,12 +1,16 @@
 from setuptools import setup, find_packages
+from mercuryitc import __version__
+
+# Authors
+# Florian Forster <florian.forster@rwth-aachen.de>
+# Sam Schott <ss2151@cam.ac.uk>
 
 setup(name="mercuryitc",
-      version="0.1.1",
+      version=__version__,
       description="Full Python driver for the Oxford Mercury iTC cryogenic environment controller.",
-      author="Sam Schott",
-      author_email="ss2151@cam.ac.uk",
       author='Florian Forster, Sam Schott',
-      author_email='f.forster@physik.uni-muenchen.de',
+      maintainer='Florian Forster',
+      maintainer_email='f.forster@physik.uni-muenchen.de',
       url='https://github.com/crazyfermions/python-mercury_driver',
       licence='MIT',
       long_description=open('README.md').read(),
