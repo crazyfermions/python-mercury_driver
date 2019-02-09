@@ -1,1 +1,2 @@
+v0.1.1, 09.02.2019 -- Use pyvisa as communication protocol, added support for LOOP module (all credit goes to Sam Schott for this release)
 v0.1.0, 18.03.2014 -- Initial release.
