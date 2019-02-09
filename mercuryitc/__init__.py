@@ -1,1 +1,1 @@
-from mercury_driver import MercuryITC
+from mercuryitc.mercury_driver import MercuryITCFactory as MercuryITC
