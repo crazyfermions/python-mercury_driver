@@ -559,11 +559,7 @@ class MercuryITC_LOOP(MercuryModule):
 
     @t_setpoint.setter
     def t_setpoint(self, val):
-        hotl = convert_scaled_values(self._read_cached_property('CAL:HOTL', str))
-        if 0 <= val <= hotl[0]:
-            self._write_property('TSET', val, float)
-        else:
-            raise ValueError('Only values between 0K and %sK allowed' % hotl[0])
+        self._write_property('TSET', val, float)
 
     @property
     def flow(self):
