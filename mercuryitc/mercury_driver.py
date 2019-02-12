@@ -553,7 +553,7 @@ class MercuryITC_LOOP(MercuryModule):
 
     @property
     def t_setpoint(self):
-        """Temperature setpoint for PID loop - Read/set - Float value [0 to HOTL]"""
+        """Temperature setpoint for PID loop - Read/set - Float value"""
         resp = convert_scaled_values(self._read_property('TSET', str))
         return resp[0]
 
