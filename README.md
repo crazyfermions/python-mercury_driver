@@ -1,3 +1,5 @@
+[![PyPi Release](https://img.shields.io/pypi/v/mercuryitc.svg)](https://img.shields.io/pypi/v/mercuryitc.svg)
+
 # MercuryITC driver
 
 ## About
