@@ -755,7 +755,7 @@ class MercuryITC(MercuryCommon):
         self.visa_address = visa_address
         self.visa_library = visa_library
         self.rm = visa.ResourceManager(self.visa_library)
-        self.connect()
+        self.connect(**kwargs)
 
     def __repr__(self):
         return '<%s(%s)>' % (type(self).__name__, self.visa_address)
