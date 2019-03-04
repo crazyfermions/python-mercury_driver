@@ -750,7 +750,7 @@ class MercuryITC(MercuryCommon):
 
     address = 'SYS'
 
-    def __init__(self, visa_address, visa_library='@py'):
+    def __init__(self, visa_address, visa_library='@py', **kwargs):
         super(MercuryITC, self).__init__()
         self.visa_address = visa_address
         self.visa_library = visa_library
@@ -760,12 +760,12 @@ class MercuryITC(MercuryCommon):
     def __repr__(self):
         return '<%s(%s)>' % (type(self).__name__, self.visa_address)
 
-    def connect(self):
+    def connect(self, **kwargs):
 
         connection_error = OSError if PY2 else ConnectionError
 
         try:
-            self.connection = self.rm.open_resource(self.visa_address)
+            self.connection = self.rm.open_resource(self.visa_address, **kwargs)
             self.connection.read_termination = '\n'
             self.connected = True
             self._init_modules()
