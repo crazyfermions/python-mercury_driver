@@ -81,7 +81,7 @@ def convert_scaled_values(s, convert=float):
 
 class CachedPropertyContainer(object):
     def __init__(self):
-        self.clear_cache()
+        self._cache = {}
 
     def _read_property(self, name, convert, ignored_delimiters=0):
         """Read a property from the device.
@@ -130,7 +130,7 @@ class CachedPropertyContainer(object):
             return prop
 
     def _write_cached_property(self, name, value, convert):
-        if self._cache[name] is not value:
+        if name not in self._cache or self._cache[name] is not value:
             cache_value = self._write_property(name, value, convert)
             self._cache[name] = cache_value
 
@@ -141,7 +141,7 @@ class CachedPropertyContainer(object):
             pass
 
     def clear_cache(self):
-        self._cache = {}
+        self._cache.clear()
 
     def query(self, q):
         pass
