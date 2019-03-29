@@ -182,7 +182,6 @@ class MercuryModule(MercuryCommon):
     def __init__(self, address, parent):
         super(MercuryModule, self).__init__()
         self.address = address
-        self.module_type = address.split(':')[-1]
         self.uid = address.split(':')[-2]
         self.parent = parent
         self._cache = {}
