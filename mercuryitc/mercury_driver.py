@@ -653,10 +653,10 @@ class MercuryITC_TEMP(MercuryModule):
 
 
 class MercuryITC_AUX(MercuryModule):
-    """Class for an MercuryITC AUX (gas loop_fset) module."""
+    """Class for an MercuryITC AUX (gas flow) module."""
     @property
     def gmin(self):
-        """Minimum gas loop_fset setting - Read/set - float value > 1"""
+        """Minimum gas flow setting - Read/set - float value > 1"""
         return self._read_cached_property('GMIN', float)
 
     @gmin.setter
@@ -672,7 +672,7 @@ class MercuryITC_AUX(MercuryModule):
 
     @property
     def gfsf(self):
-        """Gas loop_fset scaling factor - Read/set - float value [0.0 to 99.0]"""
+        """Gas flow scaling factor - Read/set - float value [0.0 to 99.0]"""
         return self._read_cached_property('GFSF', float)
 
     @gfsf.setter
