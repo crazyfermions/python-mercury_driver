@@ -81,7 +81,7 @@ def convert_scaled_values(s, convert=float):
 
 class CachedPropertyContainer(object):
     def __init__(self):
-        self.clear_cache()
+        self._cache = {}
 
     def _read_property(self, name, convert, ignored_delimiters=0):
         """Read a property from the device.
@@ -130,7 +130,7 @@ class CachedPropertyContainer(object):
             return prop
 
     def _write_cached_property(self, name, value, convert):
-        if self._cache[name] is not value:
+        if name not in self._cache or self._cache[name] is not value:
             cache_value = self._write_property(name, value, convert)
             self._cache[name] = cache_value
 
@@ -141,7 +141,7 @@ class CachedPropertyContainer(object):
             pass
 
     def clear_cache(self):
-        self._cache = {}
+        self._cache.clear()
 
     def query(self, q):
         pass
@@ -182,6 +182,7 @@ class MercuryModule(MercuryCommon):
     def __init__(self, address, parent):
         super(MercuryModule, self).__init__()
         self.address = address
+        self.uid = address.split(':')[-2]
         self.parent = parent
         self._cache = {}
 
@@ -456,168 +457,199 @@ class MercuryITC_TEMP(MercuryModule):
         """Temperature sensitivity - Read only - Float value"""
         return convert_scaled_values(self._read_property('SIG:SLOP', str))
 
+    @property
+    def loop_htr(self):
+        """Heater associated with this temperature controler - Read/set - String value"""
+        return self._read_cached_property('LOOP:HTR', str)
 
-class MercuryITC_LOOP(MercuryModule):
-    """Class for an MercuryITC temperature sensor module containing only the
-        temperature control loop settings."""
-    nick = 'LOOP'
+    @loop_htr.setter
+    def loop_htr(self, val):
+        uid_list = [m.nick for m in self.parent.modules if m.module_type == 'HTR']
+        uid_list.append('None')
+        if val in uid_list:
+            self._write_cached_property('LOOP:HTR', val, str)
+        else:
+            raise ValueError('Only values in %s allowed.' % uid_list)
+
+    @loop_htr.deleter
+    def loop_htr(self):
+        self._delete_cached_property('LOOP:HTR')
 
     @property
-    def pid_p(self):
+    def loop_aux(self):
+        """Auxillary device associated with this temperature controler (e.g., gas flow
+        valve) - Read/set - String value"""
+        return self._read_cached_property('LOOP:AUX', str)
+
+    @loop_aux.setter
+    def loop_aux(self, val):
+        uid_list = [m.nick for m in self.parent.modules if m.module_type == 'AUX']
+        uid_list.append('None')
+        if val in uid_list:
+            self._write_cached_property('LOOP:AUX', val, str)
+        else:
+            raise ValueError('Only values in %s allowed.' % uid_list)
+
+    @loop_aux.deleter
+    def loop_aux(self):
+        self._delete_cached_property('LOOP:AUX')
+
+    @property
+    def loop_p(self):
         """Proportional gain - Read/set - Float value"""
-        return self._read_cached_property('P', float)
+        return self._read_cached_property('LOOP:P', float)
 
-    @pid_p.setter
-    def pid_p(self, val):
-        self._write_cached_property('P', val, float)
+    @loop_p.setter
+    def loop_p(self, val):
+        self._write_cached_property('LOOP:P', val, float)
 
-    @pid_p.deleter
-    def pid_p(self):
-        self._delete_cached_property('P')
+    @loop_p.deleter
+    def loop_p(self):
+        self._delete_cached_property('LOOP:P')
 
     @property
-    def pid_i(self):
+    def loop_i(self):
         """Integral gain - Read/set - Float value"""
-        return self._read_cached_property('I', float)
+        return self._read_cached_property('LOOP:I', float)
 
-    @pid_i.setter
-    def pid_i(self, val):
-        self._write_cached_property('I', val, float)
+    @loop_i.setter
+    def loop_i(self, val):
+        self._write_cached_property('LOOP:I', val, float)
 
-    @pid_i.deleter
-    def pid_i(self):
-        self._delete_cached_property('I')
+    @loop_i.deleter
+    def loop_i(self):
+        self._delete_cached_property('LOOP:I')
 
     @property
-    def pid_d(self):
+    def loop_d(self):
         """Differential gain - Read/set - Float value"""
-        return self._read_cached_property('D', float)
+        return self._read_cached_property('LOOP:D', float)
 
-    @pid_d.setter
-    def pid_d(self, val):
-        self._write_cached_property('D', val, float)
+    @loop_d.setter
+    def loop_d(self, val):
+        self._write_cached_property('LOOP:D', val, float)
 
-    @pid_d.deleter
-    def pid_d(self):
-        self._delete_cached_property('D')
+    @loop_d.deleter
+    def loop_d(self):
+        self._delete_cached_property('LOOP:D')
 
     @property
-    def pid_table(self):
+    def loop_pidt(self):
         """Automatic PID values from table - Read/set - String value"""
-        return self._read_cached_property('PIDT', str)
+        return self._read_cached_property('LOOP:PIDT', str)
 
-    @pid_table.setter
-    def pid_table(self, val):
+    @loop_pidt.setter
+    def loop_pidt(self, val):
         if val == 'ON' or val == 'OFF':
-            self._write_cached_property('PIDT', val, str)
+            self._write_cached_property('LOOP:PIDT', val, str)
         else:
             raise ValueError('Only values "ON" or "OFF" allowed')
 
-    @pid_table.deleter
-    def pid_table(self):
-        self._delete_cached_property('PIDT')
+    @loop_pidt.deleter
+    def loop_pidt(self):
+        self._delete_cached_property('LOOP:PIDT')
 
     @property
-    def heater_auto(self):
+    def loop_enab(self):
         """
         Enables or disables PID control of heater - Read/set - Float value
         """
-        return self._read_cached_property('ENAB', str)
+        return self._read_cached_property('LOOP:ENAB', str)
 
-    @heater_auto.setter
-    def heater_auto(self, val):
+    @loop_enab.setter
+    def loop_enab(self, val):
         if val == 'ON' or val == 'OFF':
-            self._write_cached_property('ENAB', val, str)
+            self._write_cached_property('LOOP:ENAB', val, str)
         else:
             raise ValueError('Only values "ON" or "OFF" allowed')
 
-    @heater_auto.deleter
-    def heater_auto(self):
-        self._delete_cached_property('ENAB')
+    @loop_enab.deleter
+    def loop_enab(self):
+        self._delete_cached_property('LOOP:ENAB')
 
     @property
-    def flow_auto(self):
+    def loop_faut(self):
         """Enables or disables automatic gas flow - Read/set - String value"""
-        return self._read_cached_property('FAUT', str)
+        return self._read_cached_property('LOOP:FAUT', str)
 
-    @flow_auto.setter
-    def flow_auto(self, val):
+    @loop_faut.setter
+    def loop_faut(self, val):
         if val in ('ON', 'OFF'):
-            self._write_cached_property('FAUT', val, str)
+            self._write_cached_property('LOOP:FAUT', val, str)
         else:
             raise ValueError('Only values "ON" or "OFF" allowed')
 
-    @flow_auto.deleter
-    def flow_auto(self):
-        self._delete_cached_property('FAUT')
+    @loop_faut.deleter
+    def loop_faut(self):
+        self._delete_cached_property('LOOP:FAUT')
 
     @property
-    def t_setpoint(self):
+    def loop_tset(self):
         """Temperature setpoint for PID loop - Read/set - Float value"""
-        resp = convert_scaled_values(self._read_property('TSET', str))
+        resp = convert_scaled_values(self._read_property('LOOP:TSET', str))
         return resp[0]
 
-    @t_setpoint.setter
-    def t_setpoint(self, val):
-        self._write_property('TSET', val, float)
+    @loop_tset.setter
+    def loop_tset(self, val):
+        self._write_property('LOOP:TSET', val, float)
 
     @property
-    def flow(self):
-        """Gas flow in percent - Read/set - Float value [0 to 100]"""
-        return self._read_property('FSET', float)
+    def loop_fset(self):
+        """Gas flow setpoint in percent - Read/set - Float value [0 to 100]"""
+        return self._read_property('LOOP:FSET', float)
 
-    @flow.setter
-    def flow(self, val):
+    @loop_fset.setter
+    def loop_fset(self, val):
         if 0 <= val <= 100:
-            self._write_property('FSET', val, float)
+            self._write_property('LOOP:FSET', val, float)
         else:
             raise ValueError('Only values between 0 and 100 allowed')
 
     @property
-    def heater(self):
-        """Heater power in percent of total - Read/set - Float value [0 to 100]"""
-        return self._read_property('HSET', float)
+    def loop_hset(self):
+        """Heater power setpoint in percent - Read/set - Float value [0 to 100]"""
+        return self._read_property('LOOP:HSET', float)
 
-    @heater.setter
-    def heater(self, val):
+    @loop_hset.setter
+    def loop_hset(self, val):
         if 0 <= val <= 100:
-            self._write_property('HSET', val, float)
+            self._write_property('LOOP:HSET', val, float)
         else:
             raise ValueError('Only values between 0 and 100 allowed')
 
     @property
-    def ramp(self):
+    def loop_rset(self):
         """Temperature ramp speed in K/min - Read/set - Float value"""
-        resp = self._read_cached_property('RSET', str)
+        resp = self._read_cached_property('LOOP:RSET', str)
         if resp == 'infK/m':
             return float('inf')
         else:
             tmp = convert_scaled_values(resp)
             return tmp[0]
 
-    @ramp.setter
-    def ramp(self, val):
-        self._write_cached_property('RSET', val, str)
+    @loop_rset.setter
+    def loop_rset(self, val):
+        self._write_cached_property('LOOP:RSET', val, str)
 
-    @ramp.deleter
-    def ramp(self):
-        self._delete_cached_property('RSET')
+    @loop_rset.deleter
+    def loop_rset(self):
+        self._delete_cached_property('LOOP:RSET')
 
     @property
-    def ramp_enable(self):
+    def loop_rena(self):
         """Enables or disables temperature ramp - Read/set - String value"""
-        return self._read_cached_property('RENA', str)
+        return self._read_cached_property('LOOP:RENA', str)
 
-    @ramp_enable.setter
-    def ramp_enable(self, val):
+    @loop_rena.setter
+    def loop_rena(self, val):
         if val in ('ON', 'OFF'):
-            self._write_cached_property('RENA', val, str)
+            self._write_cached_property('LOOP:RENA', val, str)
         else:
             raise ValueError('Only values "ON" or "OFF" allowed')
 
-    @ramp_enable.deleter
-    def ramp_enable(self):
-        self._delete_cached_property('RENA')
+    @loop_rena.deleter
+    def loop_rena(self):
+        self._delete_cached_property('LOOP:RENA')
 
 
 class MercuryITC_AUX(MercuryModule):
@@ -737,9 +769,11 @@ class MercuryITC_AUX(MercuryModule):
 
 
 class MercuryITC(MercuryCommon):
-    """The main driver for the MercuryITC device. It contains all modules in
+    """
+    The main driver for the MercuryITC device. It contains all modules in
     the instance variable *modules*.
-    Pass the address and port of the device as arguments.
+
+    Pass the VISA address of the device as argument.
     """
     USERS = ['NORM', 'ENG']
     DIMAS = ['ON', 'OFF']
@@ -796,11 +830,9 @@ class MercuryITC(MercuryCommon):
         modules = self.cat.split(':DEV:')[1:]
         for module in modules:
             cls = module.split(':')[1]
-            address = 'DEV:%s' % module
+            address = 'DEV:' + module
             if cls == 'TEMP':
                 self.modules.append(MercuryITC_TEMP(address, self))
-                loop_address = address + ':LOOP'
-                self.modules.append(MercuryITC_LOOP(loop_address, self))
             elif cls == 'AUX':
                 self.modules.append(MercuryITC_AUX(address, self))
             elif cls == 'HTR':
