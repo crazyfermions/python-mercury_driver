@@ -841,11 +841,12 @@ class MercuryITC(MercuryCommon):
                 self.modules.append(MercuryITC_HTR(address, self))
 
     def write(self, q):
-        self.connection.write(q)
+        with self._lock:
+            self.connection.write(q)
 
     def read(self):
-        value = self.connection.read()
-        return value
+        with self._lock:
+            return self.connection.read()
 
     def query(self, q):
         with self._lock:
