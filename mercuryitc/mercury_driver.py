@@ -788,6 +788,7 @@ class MercuryITC(MercuryCommon):
         super(MercuryITC, self).__init__()
         self.visa_address = visa_address
         self.visa_library = visa_library
+        self._connection_kwargs = kwargs
         self.rm = visa.ResourceManager(self.visa_library)
         self.connect(**kwargs)
 
@@ -796,6 +797,7 @@ class MercuryITC(MercuryCommon):
 
     def connect(self, **kwargs):
 
+        kwargs = kwargs or self._connection_kwargs  # use specified or remembered kwargs
         connection_error = OSError if PY2 else ConnectionError
 
         try:
