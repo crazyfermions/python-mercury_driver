@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 # Sam Schott <ss2151@cam.ac.uk>
 
 setup(name="mercuryitc",
-      version='0.2.2',
+      version='0.2.3',
       description="Full Python driver for the Oxford Mercury iTC cryogenic environment controller.",
       author='Florian Forster, Sam Schott',
       maintainer='Florian Forster',
