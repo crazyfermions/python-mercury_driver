@@ -996,9 +996,9 @@ class MercuryITC(MercuryCommon):
     @property
     def alarms(self):
         """Gets the system alarms log"""
-        string = self._read_property('ALRM', str)
-        alarm_list = string[:-1].split(';')
-        alarms_dict = dict(item.split('\t') for item in alarm_list)
+        value = self._read_property('ALRM', str)
+        string_list = value.split(';')
+        alarms_dict = dict(s.split('\t') for s in string_list if s)
         return alarms_dict
 
 
