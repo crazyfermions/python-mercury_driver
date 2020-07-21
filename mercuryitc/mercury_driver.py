@@ -779,8 +779,8 @@ class MercuryITC(MercuryCommon):
     DIMAS = ['ON', 'OFF']
     _lock = threading.RLock()
 
-    connected = True
-    connection = False
+    connected = False
+    connection = None
 
     address = 'SYS'
 
@@ -823,7 +823,7 @@ class MercuryITC(MercuryCommon):
         self.connected = False
         try:
             self.connection.close()
-            del self.connection
+            self.connection = None
         except AttributeError:
             pass
 
