@@ -779,7 +779,6 @@ class MercuryITC(MercuryCommon):
     DIMAS = ['ON', 'OFF']
     _lock = threading.RLock()
 
-    connected = False
     connection = None
 
     address = 'SYS'
@@ -800,32 +799,32 @@ class MercuryITC(MercuryCommon):
         kwargs = kwargs or self._connection_kwargs  # use specified or remembered kwargs
         connection_error = OSError if PY2 else ConnectionError
 
-        try:
-            self.connection = self.rm.open_resource(self.visa_address, **kwargs)
-            self.connection.read_termination = '\n'
-            self.connected = True
-            self._init_modules()
-        except connection_error:
-            logger.info('Connection to the instrument failed. Please check ' +
-                        'that no other programm is connected.')
-            self.connection = None
-            self.connected = False
-        except AttributeError:
-            logger.info('Invalid VISA address %s.' % self.visa_address)
-            self.connection = None
-            self.connected = False
-        except Exception:
-            logger.info('Could not connect to Mercury at %s.' % self.visa_address)
-            self.connection = None
-            self.connected = False
+        with self._lock:
+            try:
+                self.connection = self.rm.open_resource(self.visa_address, **kwargs)
+                self.connection.read_termination = '\n'
+                self._init_modules()
+            except connection_error:
+                logger.info('Connection to the instrument failed. Please check ' +
+                            'that no other program is connected.')
+                self.connection = None
+            except AttributeError:
+                logger.info('Invalid VISA address %s.' % self.visa_address)
+                self.connection = None
+            except Exception:
+                logger.info('Could not connect to Mercury at %s.' % self.visa_address)
+                self.connection = None
 
     def disconnect(self):
-        self.connected = False
-        try:
-            self.connection.close()
-            self.connection = None
-        except AttributeError:
-            pass
+
+        with self._lock:
+            if self.connection:
+                self.connection.close()
+                self.connection = None
+
+    @property
+    def connected(self):
+        return self.connection is not None
 
     def _init_modules(self):
         self.modules = []
@@ -841,18 +840,27 @@ class MercuryITC(MercuryCommon):
                 self.modules.append(MercuryITC_HTR(address, self))
 
     def write(self, q):
+
         with self._lock:
+            if not self.connection:
+                raise ConnectionError('Not connected to device.')
             self.connection.write(q)
 
     def read(self):
+
         with self._lock:
+            if not self.connection:
+                raise ConnectionError('Not connected to device.')
             return self.connection.read()
 
     def query(self, q):
+
         with self._lock:
+            if not self.connection:
+                raise ConnectionError('Not connected to device.')
             r = self.connection.query('%s' % q)
             self.connection.clear()
-        return r
+            return r
 
     @property
     def cat(self):
