@@ -1,4 +1,5 @@
+v0.2.3  21.07.2020 -- Fixed a possible issue when parsing alarms, set connection to None if not connected, improved thread safety when connecting to or disconnecting from device.
 v0.2.2  04.12.2019 -- Remember PyVisa connection settings passed to constructor between disconnects. Improved thread safety.
 v0.2.1, 30.04.2019 -- Moved controls for LOOP module to TEMP module.
-v0.2.0, 09.02.2019 -- Use pyvisa as communication protocol, added support for LOOP module, singleton behaviour when instanciating the device (all credit goes to Sam Schott for this release)
+v0.2.0, 09.02.2019 -- Use pyvisa as communication protocol, added support for LOOP module, singleton behaviour when instantiating the device (all credit goes to Sam Schott for this release)
 v0.1.0, 18.03.2014 -- Initial release.
