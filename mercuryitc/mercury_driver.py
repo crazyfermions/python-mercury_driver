@@ -477,7 +477,7 @@ class MercuryITC_TEMP(MercuryModule):
 
     @property
     def loop_aux(self):
-        """Auxillary device associated with this temperature controler (e.g., gas flow
+        """Auxiliary device associated with this temperature controller (e.g., gas flow
         valve) - Read/set - String value"""
         return self._read_cached_property('LOOP:AUX', str)
 
