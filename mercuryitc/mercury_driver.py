@@ -464,12 +464,12 @@ class MercuryITC_TEMP(MercuryModule):
 
     @loop_htr.setter
     def loop_htr(self, val):
-        uid_list = [m.nick for m in self.parent.modules if m.module_type == 'HTR']
-        uid_list.append('None')
-        if val in uid_list:
+        nick_list = [m.nick for m in self.parent.modules if type(m) == MercuryITC_HTR]
+        nick_list.append('None')
+        if val in nick_list:
             self._write_cached_property('LOOP:HTR', val, str)
         else:
-            raise ValueError('Only values in %s allowed.' % uid_list)
+            raise ValueError('Only values in %s allowed.' % nick_list)
 
     @loop_htr.deleter
     def loop_htr(self):
@@ -483,12 +483,12 @@ class MercuryITC_TEMP(MercuryModule):
 
     @loop_aux.setter
     def loop_aux(self, val):
-        uid_list = [m.nick for m in self.parent.modules if m.module_type == 'AUX']
-        uid_list.append('None')
-        if val in uid_list:
+        nick_list = [m.nick for m in self.parent.modules if type(m) == MercuryITC_AUX]
+        nick_list.append('None')
+        if val in nick_list:
             self._write_cached_property('LOOP:AUX', val, str)
         else:
-            raise ValueError('Only values in %s allowed.' % uid_list)
+            raise ValueError('Only values in %s allowed.' % nick_list)
 
     @loop_aux.deleter
     def loop_aux(self):
