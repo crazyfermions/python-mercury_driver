@@ -58,7 +58,7 @@ MercuryITC: USER and PASS property not implemented
 MercuryITC_HTR: POWR not implemented correctly
 """
 import sys
-import visa
+import pyvisa
 import threading
 import logging
 
@@ -788,7 +788,7 @@ class MercuryITC(MercuryCommon):
         self.visa_address = visa_address
         self.visa_library = visa_library
         self._connection_kwargs = kwargs
-        self.rm = visa.ResourceManager(self.visa_library)
+        self.rm = pyvisa.ResourceManager(self.visa_library)
         self.connect(**kwargs)
 
     def __repr__(self):
