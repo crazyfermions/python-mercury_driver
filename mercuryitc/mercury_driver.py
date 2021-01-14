@@ -301,9 +301,9 @@ class MercuryITC_HTR(MercuryModule):
 class MercuryITC_TEMP(MercuryModule):
     """Class for an MercuryITC temperature sensor module without the
         temperature control loop settings."""
-    TYPES = ['PTC', 'NTC', 'DDE', 'TCE']
-    EXCT_TYPES = ['UNIP', 'BIP', 'SOFT']
-    CAL_INT = ['LIN', 'SPL', 'LAGR']
+    TYPES = ('PTC', 'NTC', 'DDE', 'TCE')
+    EXCT_TYPES = ('UNIP', 'BIP', 'SOFT')
+    CAL_INT = ('LIN', 'SPL', 'LAGR')
 
     @property
     def type(self):
@@ -775,15 +775,15 @@ class MercuryITC(MercuryCommon):
 
     Pass the VISA address of the device as argument.
     """
-    USERS = ['NORM', 'ENG']
-    DIMAS = ['ON', 'OFF']
-    _lock = threading.RLock()
+    USERS = ('NORM', 'ENG')
+    DIMAS = ('ON', 'OFF')
 
     connection = None
 
     address = 'SYS'
 
     def __init__(self, visa_address, visa_library='@py', **kwargs):
+        self._lock = threading.RLock()
         super(MercuryITC, self).__init__()
         self.visa_address = visa_address
         self.visa_library = visa_library
