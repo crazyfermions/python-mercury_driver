@@ -77,7 +77,7 @@ def convert_scaled_values(s, convert=float):
     return convert(f), unit
 
 
-class CachedPropertyContainer(object):
+class CachedPropertyContainer:
     def __init__(self):
         self._cache = {}
 
@@ -178,7 +178,7 @@ class MercuryCommon(CachedPropertyContainer):
 class MercuryModule(MercuryCommon):
     """Base class for a MercuryITC module."""
     def __init__(self, address, parent):
-        super(MercuryModule, self).__init__()
+        super().__init__()
         self.address = address
         self.uid = address.split(':')[-2]
         self.parent = parent
@@ -212,7 +212,7 @@ class MercuryModule(MercuryCommon):
 
 class MercuryITC_HTR(MercuryModule):
     def __init__(self, address, parent):
-        super(MercuryITC_HTR, self).__init__(address, parent)
+        super().__init__(address, parent)
 
     @property
     def pmax(self):
@@ -782,7 +782,7 @@ class MercuryITC(MercuryCommon):
     address = 'SYS'
 
     def __init__(self, visa_address, visa_library='@py', **kwargs):
-        super(MercuryITC, self).__init__()
+        super().__init__()
         self.visa_address = visa_address
         self.visa_library = visa_library
         self._connection_kwargs = kwargs
@@ -1009,7 +1009,7 @@ class MercuryITC(MercuryCommon):
         return alarms_dict
 
 
-class MercuryITCFactory(object):
+class MercuryITCFactory:
 
     _instances = {}
 
