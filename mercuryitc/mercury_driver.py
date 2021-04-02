@@ -794,6 +794,7 @@ class MercuryITC(MercuryCommon):
         return f'<{type(self).__name__}({self.visa_address})>'
 
     def connect(self, **kwargs):
+        """Connect to the MercuryiTC. Returns True if connected, False otherwise."""
 
         kwargs = kwargs or self._connection_kwargs  # use specified or remembered kwargs
         connection_error = OSError if PY2 else ConnectionError
@@ -803,6 +804,7 @@ class MercuryITC(MercuryCommon):
                 self.connection = self.rm.open_resource(self.visa_address, **kwargs)
                 self.connection.read_termination = '\n'
                 self._init_modules()
+                return True
             except connection_error:
                 logger.info('Connection to the instrument failed. Please check ' +
                             'that no other program is connected.')
@@ -813,6 +815,8 @@ class MercuryITC(MercuryCommon):
             except Exception:
                 logger.info(f'Could not connect to Mercury at {self.visa_address}')
                 self.connection = None
+
+            return False
 
     def disconnect(self):
 
