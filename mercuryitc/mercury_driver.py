@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-A driver to read and set the Oxford MercuryITC with its modules. Only the USB
-connection is supported. Note that this connection is technically just a
-serial connection, so the appropriate interface is the serial interface.
+A driver to read and set the Oxford MercuryITC with its modules. The connection
+is established with pyvisa using either a pyvisa-py or proprietary visa library.
 
-This driver supports the aux, heater and temperature modules. Look
-at the class docstrings to see all the implemented features (which is almost
-all).
+This driver supports the aux, heater and temperature modules. Look at the class
+docstrings to see all the implemented features (which is almost all).
 
 The core of this module is the class MercuryITC. To initialize a driver object,
 just create an instance of this class with the device's address, e. g.
