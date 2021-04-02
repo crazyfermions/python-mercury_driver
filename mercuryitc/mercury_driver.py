@@ -787,6 +787,7 @@ class MercuryITC(MercuryCommon):
         self.visa_library = visa_library
         self._connection_kwargs = kwargs
         self.rm = pyvisa.ResourceManager(self.visa_library)
+        self.modules = []
         self.connect(**kwargs)
 
     def __repr__(self):
@@ -825,7 +826,7 @@ class MercuryITC(MercuryCommon):
         return self.connection is not None
 
     def _init_modules(self):
-        self.modules = []
+        self.modules.clear()
         modules = self.cat.split(':DEV:')[1:]
         for module in modules:
             cls = module.split(':')[1]
