@@ -55,12 +55,10 @@ To fix:
 MercuryITC: USER and PASS property not implemented
 MercuryITC_HTR: POWR not implemented correctly
 """
-import sys
 import pyvisa
 import threading
 import logging
 
-PY2 = sys.version[0] == '2'
 logger = logging.getLogger(__name__)
 
 
@@ -797,7 +795,6 @@ class MercuryITC(MercuryCommon):
         """Connect to the MercuryiTC. Returns True if connected, False otherwise."""
 
         kwargs = kwargs or self._connection_kwargs  # use specified or remembered kwargs
-        connection_error = OSError if PY2 else ConnectionError
 
         with self._lock:
             try:
@@ -805,17 +802,12 @@ class MercuryITC(MercuryCommon):
                 self.connection.read_termination = '\n'
                 self._init_modules()
                 return True
-            except connection_error:
-                logger.warning('Connection to the instrument failed. Please check ' +
-                            'that no other program is connected.')
-                self.connection = None
             except AttributeError:
                 logger.warning(f'Invalid VISA address {self.visa_address}')
-                self.connection = None
             except Exception:
                 logger.warning(f'Could not connect to Mercury at {self.visa_address}')
-                self.connection = None
 
+            self.connection = None
             return False
 
     def disconnect(self):
