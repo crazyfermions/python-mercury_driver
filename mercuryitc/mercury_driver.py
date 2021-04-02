@@ -806,14 +806,14 @@ class MercuryITC(MercuryCommon):
                 self._init_modules()
                 return True
             except connection_error:
-                logger.info('Connection to the instrument failed. Please check ' +
+                logger.warning('Connection to the instrument failed. Please check ' +
                             'that no other program is connected.')
                 self.connection = None
             except AttributeError:
-                logger.info(f'Invalid VISA address {self.visa_address}')
+                logger.warning(f'Invalid VISA address {self.visa_address}')
                 self.connection = None
             except Exception:
-                logger.info(f'Could not connect to Mercury at {self.visa_address}')
+                logger.warning(f'Could not connect to Mercury at {self.visa_address}')
                 self.connection = None
 
             return False
