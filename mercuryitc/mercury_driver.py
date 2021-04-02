@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-A driver to read and set the Oxford MercuryITC with its modules. Only the USB
-connection is supported. Note that this connection is technically just a
-serial connection, so the appropriate interface is the serial interface.
+A driver to read and set the Oxford MercuryITC with its modules. The connection
+is established with pyvisa using either a pyvisa-py or proprietary visa library.
 
-This driver supports the aux, heater and temperature modules. Look
-at the class docstrings to see all the implemented features (which is almost
-all).
+This driver supports the aux, heater and temperature modules. Look at the class
+docstrings to see all the implemented features (which is almost all).
 
 The core of this module is the class MercuryITC. To initialize a driver object,
 just create an instance of this class with the device's address, e. g.
@@ -79,7 +77,7 @@ def convert_scaled_values(s, convert=float):
     return convert(f), unit
 
 
-class CachedPropertyContainer(object):
+class CachedPropertyContainer:
     def __init__(self):
         self._cache = {}
 
@@ -91,7 +89,7 @@ class CachedPropertyContainer(object):
         ignored_delimiters (int): Amount of ':' which belongs to the property's
             value. Only makes sense for str values.
         """
-        q = 'READ:%s:%s' % (self.address, name)
+        q = f'READ:{self.address}:{name}'
         resp = self.query(q)
         delimiters = resp.count(':')
         value = resp.split(':', delimiters-ignored_delimiters)[-1]
@@ -100,13 +98,13 @@ class CachedPropertyContainer(object):
 
     def _write_property(self, name, value, convert):
         if convert == float:
-            value_str = '%f' % value
+            value_str = f'{value:f}'
         elif convert == int:
-            value_str = '%i' % value
+            value_str = f'{int(value):d}'
         else:
             value_str = value
 
-        q = 'SET:%s:%s:%s' % (self.address, name, value_str)
+        q = f'SET:{self.address}:{name}:{value_str}'
         resp = self.query(q).split(':')
         if resp[-1] != 'VALID':
             print(resp)
@@ -180,14 +178,14 @@ class MercuryCommon(CachedPropertyContainer):
 class MercuryModule(MercuryCommon):
     """Base class for a MercuryITC module."""
     def __init__(self, address, parent):
-        super(MercuryModule, self).__init__()
+        super().__init__()
         self.address = address
         self.uid = address.split(':')[-2]
         self.parent = parent
         self._cache = {}
 
     def __repr__(self):
-        return '<%s(%s, %s)>' % (type(self).__name__, self.nick, self.parent)
+        return f'<{type(self).__name__}({self.nick}, {self.parent})>'
 
     def read(self):
         return self.parent.read()
@@ -214,7 +212,7 @@ class MercuryModule(MercuryCommon):
 
 class MercuryITC_HTR(MercuryModule):
     def __init__(self, address, parent):
-        super(MercuryITC_HTR, self).__init__(address, parent)
+        super().__init__(address, parent)
 
     @property
     def pmax(self):
@@ -269,7 +267,7 @@ class MercuryITC_HTR(MercuryModule):
             val = [str(v) for v in val]
             self._write_property('SIG:VOLT', ''.join(val), str)
         else:
-            raise ValueError('Only values from 0 to %s allowed.' % self.vlim)
+            raise ValueError(f'Only values from 0 to {self.vlim} allowed')
 
     @property
     def curr(self):
@@ -295,7 +293,7 @@ class MercuryITC_HTR(MercuryModule):
         if 0 <= val <= self.pmax:
             self._write_property('SIG:PWR', val, float)
         else:
-            raise ValueError('Only values from 0 to %s allowed' % self.pmax)
+            raise ValueError(f'Only values from 0 to {self.pmax} allowed')
 
 
 class MercuryITC_TEMP(MercuryModule):
@@ -315,7 +313,7 @@ class MercuryITC_TEMP(MercuryModule):
         if val in self.TYPES:
             self._write_cached_property('TYPE', val, str)
         else:
-            raise ValueError('Only values from %s allowed' % self.TYPES)
+            raise ValueError(f'Only values from {self.TYPES} allowed')
 
     @type.deleter
     def type(self):
@@ -329,7 +327,7 @@ class MercuryITC_TEMP(MercuryModule):
     @exct_type.setter
     def exct_type(self, val):
         if val not in self.TYPES:
-            raise ValueError('Only values from %s allowed' % self.EXCT_TYPES)
+            raise ValueError(f'Only values from {self.EXCT_TYPES} allowed')
         else:
             self._write_cached_property('EXCT:TYPE', val, str)
 
@@ -381,7 +379,7 @@ class MercuryITC_TEMP(MercuryModule):
         if val in self.CAL_INT:
             self._write_cached_property('CAL:INT', val, str)
         else:
-            raise ValueError('Only values from %s allowed' % self.CAL_INT)
+            raise ValueError(f'Only values from {self.CAL_INT} allowed')
 
     @cal_int.deleter
     def cal_int(self):
@@ -469,7 +467,7 @@ class MercuryITC_TEMP(MercuryModule):
         if val in nick_list:
             self._write_cached_property('LOOP:HTR', val, str)
         else:
-            raise ValueError('Only values in %s allowed.' % nick_list)
+            raise ValueError(f'Only values in {nick_list} allowed')
 
     @loop_htr.deleter
     def loop_htr(self):
@@ -488,7 +486,7 @@ class MercuryITC_TEMP(MercuryModule):
         if val in nick_list:
             self._write_cached_property('LOOP:AUX', val, str)
         else:
-            raise ValueError('Only values in %s allowed.' % nick_list)
+            raise ValueError(f'Only values in {nick_list} allowed')
 
     @loop_aux.deleter
     def loop_aux(self):
@@ -783,16 +781,17 @@ class MercuryITC(MercuryCommon):
     address = 'SYS'
 
     def __init__(self, visa_address, visa_library='@py', **kwargs):
+        super().__init__()
         self._lock = threading.RLock()
-        super(MercuryITC, self).__init__()
         self.visa_address = visa_address
         self.visa_library = visa_library
         self._connection_kwargs = kwargs
         self.rm = pyvisa.ResourceManager(self.visa_library)
+        self.modules = []
         self.connect(**kwargs)
 
     def __repr__(self):
-        return '<%s(%s)>' % (type(self).__name__, self.visa_address)
+        return f'<{type(self).__name__}({self.visa_address})>'
 
     def connect(self, **kwargs):
 
@@ -809,10 +808,10 @@ class MercuryITC(MercuryCommon):
                             'that no other program is connected.')
                 self.connection = None
             except AttributeError:
-                logger.info('Invalid VISA address %s.' % self.visa_address)
+                logger.info(f'Invalid VISA address {self.visa_address}')
                 self.connection = None
             except Exception:
-                logger.info('Could not connect to Mercury at %s.' % self.visa_address)
+                logger.info(f'Could not connect to Mercury at {self.visa_address}')
                 self.connection = None
 
     def disconnect(self):
@@ -827,7 +826,7 @@ class MercuryITC(MercuryCommon):
         return self.connection is not None
 
     def _init_modules(self):
-        self.modules = []
+        self.modules.clear()
         modules = self.cat.split(':DEV:')[1:]
         for module in modules:
             cls = module.split(':')[1]
@@ -858,7 +857,7 @@ class MercuryITC(MercuryCommon):
         with self._lock:
             if not self.connection:
                 raise ConnectionError('Not connected to device.')
-            r = self.connection.query('%s' % q)
+            r = self.connection.query(str(q))
             self.connection.clear()
             return r
 
@@ -896,7 +895,7 @@ class MercuryITC(MercuryCommon):
     @user.setter
     def user(self, val):
         if val not in self.USERS:
-            raise ValueError('Only values from %s allowed' % self.USERS)
+            raise ValueError(f'Only values from {self.USERS} allowed')
         else:
             self._write_cached_property('USER', val, str)
 
@@ -913,7 +912,7 @@ class MercuryITC(MercuryCommon):
     @dima.setter
     def dima(self, val):
         if val not in self.DIMAS:
-            raise ValueError('Only values from %s allowed' % self.DIMAS)
+            raise ValueError(f'Only values from {self.DIMAS} allowed')
         else:
             self._write_cached_property('DISP:DIMA', val, str)
 
@@ -964,15 +963,15 @@ class MercuryITC(MercuryCommon):
         if hh < 0 or hh > 23:
             raise ValueError('Hours must be between 0 and 24')
         else:
-            hh = ('%i' % hh).zfill(2)
+            hh = str(hh).zfill(2)
         if mm < 0 or mm > 59:
             raise ValueError('Minutes must be between 0 and 60')
         else:
-            mm = ('%i' % mm).zfill(2)
+            mm = str(mm).zfill(2)
         if ss < 0 or ss > 59:
             raise ValueError('Seconds must be between 0 and 60')
         else:
-            ss = ('%i' % ss).zfill(2)
+            ss = str(ss).zfill(2)
         val = ':'.join([hh, mm, ss])
         self._write_property('TIME', val, str)
 
@@ -984,15 +983,15 @@ class MercuryITC(MercuryCommon):
     @date.setter
     def date(self, val):
         yyyy, mm, dd = [int(s) for s in val.split(':')]
-        yyyy = ('%i' % yyyy).zfill(4)
+        yyyy = str(yyyy).zfill(4)
         if mm < 1 or mm > 12:
             raise ValueError('Month must be between 1 and 12')
         else:
-            mm = ('%i' % mm).zfill(2)
+            mm = str(mm).zfill(2)
         if dd < 0 or dd > 31:
             raise ValueError('Days must be between 0 and 31')
         else:
-            dd = ('%i' % dd).zfill(2)
+            dd = str(dd).zfill(2)
         val = ':'.join([yyyy, mm, dd])
 
         # Note that this might not validate, since the implementation of the
@@ -1010,7 +1009,7 @@ class MercuryITC(MercuryCommon):
         return alarms_dict
 
 
-class MercuryITCFactory(object):
+class MercuryITCFactory:
 
     _instances = {}
 
@@ -1019,10 +1018,10 @@ class MercuryITCFactory(object):
         Create new instance for a new visa_address, otherwise return existing instance.
         """
         if args[0] in cls._instances:
-            logger.debug('Returning existing instance with address %s.' % args[0])
+            logger.debug('Returning existing instance with address %s', args[0])
             return cls._instances[args[0]]
         else:
             instance = MercuryITC(*args, **kwargs)
             cls._instances[args[0]] = instance
-            logger.debug('Creating new instance with address %s.' % args[0])
+            logger.debug('Creating new instance with address %s', args[0])
             return instance

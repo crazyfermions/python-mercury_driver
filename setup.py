@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 # Sam Schott <ss2151@cam.ac.uk>
 
 setup(name='mercuryitc',
-      version='0.2.5',
+      version='0.3.0',
       description='Full Python driver for the Oxford Mercury iTC cryogenic environment controller.',
       author='Florian Forster, Sam Schott',
       maintainer='Florian Forster',
@@ -16,6 +16,7 @@ setup(name='mercuryitc',
       long_description=open('README.md').read(),
       long_description_content_type='text/markdown',
       packages=find_packages(),
+      python_requires='>=3.6',
       install_requires=[
           'PyVISA',
           'pyvisa-py',

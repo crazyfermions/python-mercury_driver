@@ -1,3 +1,4 @@
+v0.3.0  02.04.2021 -- Use f-strings and other Python 3.6 syntax, require Python 3.6 or later. Sety an empty modules list during init.
 v0.2.5  09.10.2020 -- Replaces deprecated visa import to pyvisa.
 v0.2.4  22.08.2020 -- Fixes an error when assigning gasflow (AUX) and heater (HTR) modules to a control loop.
 v0.2.3  21.07.2020 -- Fixed a possible issue when parsing alarms, set connection to None if not connected, improved thread safety when connecting to or disconnecting from device.
