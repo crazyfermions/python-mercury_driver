@@ -805,7 +805,10 @@ class MercuryITC(MercuryCommon):
             except AttributeError:
                 logger.warning(f'Invalid VISA address {self.visa_address}')
             except Exception:
-                logger.warning(f'Could not connect to Mercury at {self.visa_address}')
+                logger.warning(
+                    f'Could not connect to Mercury at {self.visa_address}',
+                    exc_info=True
+                )
 
             self.connection = None
             return False
