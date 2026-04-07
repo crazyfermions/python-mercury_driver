@@ -764,6 +764,115 @@ class MercuryITC_AUX(MercuryModule):
         return convert_scaled_values(self._read_property('SIG:IN', str))
 
 
+class MercuryITC_PRES(MercuryModule):
+    """Class for an MercuryITC pressure sensor module."""
+    CAL_INT = ('LIN', 'SPL', 'LAGR')
+
+    @property
+    def type(self):
+        """Sensor type - Read/set - String value"""
+        return self._read_cached_property('TYPE', str)
+
+    @type.setter
+    def type(self, val):
+        self._write_cached_property('TYPE', val, str)
+
+    @type.deleter
+    def type(self):
+        self._delete_cached_property('TYPE')
+
+    @property
+    def pres(self):
+        """Most recent pressure reading - Read only - Float value with unit"""
+        return convert_scaled_values(self._read_property('SIG:PRES', str))
+
+    @property
+    def volt(self):
+        """Most recent voltage reading - Read only - Float value with unit"""
+        return convert_scaled_values(self._read_property('SIG:VOLT', str))
+
+    @property
+    def stat(self):
+        """Status - Read only - String value"""
+        return self._read_property('SIG:STAT', str)
+
+    @property
+    def cal_file(self):
+        """Calibration file name - Read/set - Filename"""
+        return self._read_cached_property('CAL:FILE', str)
+
+    @cal_file.setter
+    def cal_file(self, val):
+        self._write_cached_property('CAL:FILE', val, str)
+
+    @cal_file.deleter
+    def cal_file(self):
+        self._delete_cached_property('CAL:FILE')
+
+    @property
+    def cal_int(self):
+        """Interpolation type [LIN | SPL | LAGR] - Read/set - Enumerated set"""
+        return self._read_cached_property('CAL:INT', str)
+
+    @cal_int.setter
+    def cal_int(self, val):
+        if val in self.CAL_INT:
+            self._write_cached_property('CAL:INT', val, str)
+        else:
+            raise ValueError(f'Only values from {self.CAL_INT} allowed')
+
+    @cal_int.deleter
+    def cal_int(self):
+        self._delete_cached_property('CAL:INT')
+
+    @property
+    def cal_scal(self):
+        """Scaling factor - Read/set - Float value [0.5 to 1.5]"""
+        return self._read_cached_property('CAL:SCAL', float)
+
+    @cal_scal.setter
+    def cal_scal(self, val):
+        if 0.5 <= val <= 1.5:
+            self._write_cached_property('CAL:SCAL', val, float)
+        else:
+            raise ValueError('Only values between 0.5 and 1.5 allowed')
+
+    @cal_scal.deleter
+    def cal_scal(self):
+        self._delete_cached_property('CAL:SCAL')
+
+    @property
+    def cal_offs(self):
+        """Offset value - Read/set - Float value"""
+        return self._read_cached_property('CAL:OFFS', float)
+
+    @cal_offs.setter
+    def cal_offs(self, val):
+        self._write_cached_property('CAL:OFFS', val, float)
+
+    @cal_offs.deleter
+    def cal_offs(self):
+        self._delete_cached_property('CAL:OFFS')
+
+    @property
+    def cal_hotl(self):
+        """Hot limit - Read only - Float value with unit"""
+        return convert_scaled_values(self._read_cached_property('CAL:HIGL', str))
+
+    @cal_hotl.deleter
+    def cal_hotl(self):
+        self._delete_cached_property('CAL:HIGL')
+
+    @property
+    def cal_coldl(self):
+        """Cold limit - Read only - Float value with unit"""
+        return convert_scaled_values(self._read_cached_property('CAL:LOWL', str))
+
+    @cal_coldl.deleter
+    def cal_coldl(self):
+        self._delete_cached_property('CAL:LOWL')
+
+
 class MercuryITC(MercuryCommon):
     """
     The main driver for the MercuryITC device. It contains all modules in
@@ -800,6 +909,9 @@ class MercuryITC(MercuryCommon):
             try:
                 self.connection = self.rm.open_resource(self.visa_address, **kwargs)
                 self.connection.read_termination = '\n'
+                # Set write_termination if it wasn't provided in kwargs
+                if 'write_termination' not in kwargs:
+                    self.connection.write_termination = '\n'
                 self._init_modules()
                 return True
             except AttributeError:
@@ -836,6 +948,8 @@ class MercuryITC(MercuryCommon):
                 self.modules.append(MercuryITC_AUX(address, self))
             elif cls == 'HTR':
                 self.modules.append(MercuryITC_HTR(address, self))
+            elif cls == 'PRES':
+                self.modules.append(MercuryITC_PRES(address, self))
 
     def write(self, q):
 
